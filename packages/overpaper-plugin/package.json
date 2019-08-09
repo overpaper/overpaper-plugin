@@ -30,12 +30,13 @@
     "watch": "npm run build -- --watch",
     "prepublish": "npm run build",
     "cleanup": "mkdir -p ./dist",
-    "build": "npm run cleanup && rollup --config ../../rollup.config.js"
+    "build": "npm run cleanup && ../node_modules/.bin/rollup --config ../../rollup.config.js"
   },
   "devDependencies": {
     "@types/nanoid": "2.0.0"
   },
   "dependencies": {
     "nanoid": "2.0.3"
-  }
+  },
+  "gitHead": "673b2d083b30728635cb4eabe8cc85e7261acbb1"
 }

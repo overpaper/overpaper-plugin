@@ -31,9 +31,10 @@
     "watch": "npm run build -- --watch",
     "prepublish": "npm run build",
     "cleanup": "rm -rf ./dist && mkdir -p ./dist",
-    "build": "npm run cleanup && rollup --config ../../rollup.config.js"
+    "build": "npm run cleanup && ../node_modules/.bin/rollup --config ../../rollup.config.js"
   },
   "dependencies": {
     "@overpaper/plugin": "^1.0.1-alpha.0"
-  }
+  },
+  "gitHead": "673b2d083b30728635cb4eabe8cc85e7261acbb1"
 }
