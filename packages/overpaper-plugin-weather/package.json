@@ -29,8 +29,9 @@
   ],
   "scripts": {
     "watch": "npm run build -- --watch",
-    "build-prepare": "rm -rf ./dist && mkdir ./dist && cp ./package*.json ./dist",
-    "build": "npm run build-prepare && rollup --config ../../rollup.config.js"
+    "prepublish": "npm run build",
+    "cleanup": "rm -rf ./dist && mkdir -p ./dist",
+    "build": "npm run cleanup && rollup --config ../../rollup.config.js"
   },
   "dependencies": {
     "@overpaper/plugin": "^1.0.0-alpha.0"
