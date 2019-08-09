@@ -1,0 +1,40 @@
+{
+  "name": "@overpaper/plugin",
+  "version": "1.0.0",
+  "description": "package for creating overpaper plugin",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/overpaper/overpaper-plugin.git"
+  },
+  "keywords": [
+    "overpaper",
+    "plugin"
+  ],
+  "author": "Dmitry Kharitonov <geakstr@me.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/overpaper/overpaper-plugin/issues"
+  },
+  "homepage": "https://github.com/overpaper/overpaper-plugin",
+  "main": "dist/index.js",
+  "module": "dist/index.es.js",
+  "typings": "dist/index.d.ts",
+  "types": "dist/index.d.ts",
+  "directories": {
+    "dist": "dist"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "watch": "npm run build -- --watch",
+    "build-prepare": "mkdir -p ./dist && cp ./package*.json ./dist",
+    "build": "npm run build-prepare && rollup --config ../../rollup.config.js"
+  },
+  "devDependencies": {
+    "@types/nanoid": "2.0.0"
+  },
+  "dependencies": {
+    "nanoid": "2.0.3"
+  }
+}
