@@ -27,9 +27,9 @@
     "dist"
   ],
   "scripts": {
-    "watch": "npm run build -- --watch",
+    "watch": "../../node_modules/.bin/rollup --config ../../rollup.config.js --watch",
     "prepublish": "npm run build",
-    "cleanup": "mkdir -p ./dist",
+    "cleanup": "rm -rf ./dist && mkdir -p ./dist",
     "build": "npm run cleanup && ../../node_modules/.bin/rollup --config ../../rollup.config.js"
   },
   "devDependencies": {
