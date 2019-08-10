@@ -22,7 +22,7 @@ const query = async (idx: number) => {
 
   if (!post) {
     return $body.inline([
-      $el.button({ label: "Resfresh", action: { idx: 0 } }),
+      $el.button({ label: "Refresh", action: { idx: 0 } }),
       $el.text({ text: " " }),
       $el.text({ text: "Nothing found" })
     ]);
