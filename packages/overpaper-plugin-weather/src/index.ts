@@ -1,16 +1,16 @@
-import { listen, send, $el, $content } from "@overpaper/plugin";
+import { listen, send, $el, $body } from "@overpaper/plugin";
 
 listen(async (req, res) => {
   switch (req.context.type) {
     case "query": {
       if (req.context.query.trim().length === 0) {
         return res.reply({
-          content: $content.inline([$el.text({ text: "Enter city " })])
+          body: $body.inline([$el.text({ text: "Enter city " })])
         });
       }
       const { payload: apikey } = await send("storage-get", "apikey");
       if (!apikey) {
-        return res.reply({ content: auth() });
+        return res.reply({ body: auth() });
       }
       return res.reply(await getWeather(req.context.query, apikey));
     }
@@ -44,28 +44,28 @@ const getWeather = async (query: string, apikey: string) => {
           return auth();
         }
         case 404: {
-          return $content.inline([$el.text({ text: "Not found" })]);
+          return $body.inline([$el.text({ text: "Not found" })]);
         }
         case 200: {
           const json = await response.json();
-          return $content.inline([
+          return $body.inline([
             $el.text({ text: `${Math.round(json.main.temp)}°C` })
           ]);
         }
         default: {
           console.warn(response);
-          return $content.inline([$el.text({ text: "Something went wrong" })]);
+          return $body.inline([$el.text({ text: "Something went wrong" })]);
         }
       }
     })
     .catch(error => {
       console.error(error);
-      return $content.inline([$el.text({ text: "Something went wrong" })]);
+      return $body.inline([$el.text({ text: "Something went wrong" })]);
     })) as any;
 };
 
 const auth = () => {
-  return $content.inline([
+  return $body.inline([
     $el.form({
       body: [
         $el.input({ type: "text", name: "apikey", placeholder: "API Key" })

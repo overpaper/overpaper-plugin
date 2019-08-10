@@ -14,7 +14,7 @@ export function listen(
           message: message
         };
         const response: Response = {
-          reply: ({ content, state }) => reply(message, content, state),
+          reply: ({ body, state }) => reply(message, body, state),
           error: ({ error, state }) => error(message, error, state)
         };
         callback(request, response).catch(err =>
@@ -100,12 +100,12 @@ export const $el = {
   }),
   button: (props: {
     label?: string | number;
-    action: string | number | JSON;
+    action: string | number | { [key: string]: any };
     icon?: string;
   }): {
     type: "button";
     label?: string | number;
-    action: string | number | JSON;
+    action: string | number | { [key: string]: any };
     icon?: string;
   } => ({ type: "button", ...props }),
   input: $input,
@@ -117,7 +117,7 @@ export const $el = {
   } => ({ type: "form", ...props })
 };
 
-export const $content = {
+export const $body = {
   inline: (
     content: ResponsePayloadInlineContent
   ): { type: "inline"; content: ResponsePayloadInlineContent } => ({
@@ -131,7 +131,10 @@ export interface Request {
   readonly message: Message<RequestContext>;
 }
 
-export type RequestContext = RequestContextQuery | RequestContextForm;
+export type RequestContext =
+  | RequestContextQuery
+  | RequestContexAction
+  | RequestContextForm;
 
 export interface PluginContextBase<T> {
   readonly type: T;
@@ -143,12 +146,16 @@ export interface PluginContextBase<T> {
 
 export type RequestContextQuery = PluginContextBase<"query">;
 
+export interface RequestContexAction extends PluginContextBase<"action"> {
+  readonly action: string | number | { [key: string]: any };
+}
+
 export interface RequestContextForm extends PluginContextBase<"form"> {
   readonly body: { [key: string]: any };
 }
 
 export interface Response {
-  readonly reply: (args: { content: ResponsePayload; state?: any }) => void;
+  readonly reply: (args: { body: ResponseBody; state?: any }) => void;
   readonly error: (args: { error: any; state?: any }) => void;
 }
 
@@ -158,12 +165,12 @@ export type ResponsePayloadInlineContentItem = ReturnType<
 
 export type ResponsePayloadInlineContent = ResponsePayloadInlineContentItem[];
 
-export interface ResponsePayloadInline {
+export interface ResponseBodyInline {
   readonly type: "inline";
   readonly content: ResponsePayloadInlineContent;
 }
 
-export type ResponsePayload = ResponsePayloadInline;
+export type ResponseBody = ResponseBodyInline;
 
 export interface Message<Args> {
   readonly uid: string;
@@ -189,15 +196,15 @@ export interface ReplyHandlersValue {
 
 function reply<Args extends any[]>(
   message: Message<Args>,
-  content: ResponsePayload,
+  body: ResponseBody,
   state?: any
 ) {
   const replyMessage: MessageReply<
     Args,
-    { content: ResponsePayload; state?: any }
+    { body: ResponseBody; state?: any }
   > = {
     ...message,
-    payload: { content, state },
+    payload: { body, state },
     type: "ipc-message-reply",
     process: "worker"
   };

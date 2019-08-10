@@ -1,9 +1,9 @@
-import { listen, $el, $content } from "@overpaper/plugin";
+import { listen, $el, $body } from "@overpaper/plugin";
 
 listen(async (req, res) => {
   switch (req.context.type) {
     case "query": {
-      return res.reply({ content: evaluate(req.context.query) });
+      return res.reply({ body: evaluate(req.context.query) });
     }
     default:
       break;
@@ -11,5 +11,5 @@ listen(async (req, res) => {
 });
 
 const evaluate = (expression: string) => {
-  return $content.inline([$el.text({ text: `= ${eval(expression)}` })]);
+  return $body.inline([$el.text({ text: `= ${eval(expression)}` })]);
 };
