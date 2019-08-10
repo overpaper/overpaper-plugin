@@ -1,4 +1,4 @@
-import { listen, send, $el, $body } from "@overpaper/plugin";
+import { listen, send, $el, $body, ResponseBody } from "@overpaper/plugin";
 
 listen(async (req, res) => {
   switch (req.context.type) {
@@ -12,7 +12,9 @@ listen(async (req, res) => {
       if (!apikey) {
         return res.reply({ body: auth() });
       }
-      return res.reply(await getWeather(req.context.query, apikey));
+      return res.reply({
+        body: await getWeather(req.context.query, apikey)
+      });
     }
     case "form": {
       const { apikey } = req.context.body;
@@ -21,14 +23,19 @@ listen(async (req, res) => {
         return res.error({ error: "Need API Key" });
       }
       await send("storage-set", "apikey", apikey);
-      return res.reply(await getWeather(req.context.query, apikey));
+      return res.reply({
+        body: await getWeather(req.context.query, apikey)
+      });
     }
     default:
       break;
   }
 });
 
-const getWeather = async (query: string, apikey: string) => {
+const getWeather = async (
+  query: string,
+  apikey: string
+): Promise<ResponseBody> => {
   const [city, country] = query.split(",");
   const apiurl = "https://api.openweathermap.org/data/2.5";
   let q = `${city}`;
