@@ -12,8 +12,7 @@ listen(async (req, res) => {
       )).json();
       return res.reply({
         content: $content.inline([
-          $el.button({ label: "<-", action: "" }),
-          $el.button({ label: "->", action: "" }),
+          $el.button({ label: "Next", action: "" }),
           $el.text({ text: " " }),
           $el.link({ text: post.title, url: post.url })
         ]),
