@@ -1,6 +1,6 @@
 {
   "name": "overpaper-plugin-weather",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "openweathermap plugin for overpaper",
   "repository": {
     "type": "git",
