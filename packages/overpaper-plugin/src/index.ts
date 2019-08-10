@@ -114,7 +114,15 @@ export const $el = {
   }): {
     type: "form";
     body: ReturnType<typeof $input>[];
-  } => ({ type: "form", ...props })
+  } => ({ type: "form", ...props }),
+  oauth: (props: {
+    provider: RequestContextOauth["provider"];
+    scope?: RequestContextOauth["scope"];
+  }): {
+    type: "oauth";
+    provider: RequestContextOauth["provider"];
+    scope?: RequestContextOauth["scope"];
+  } => ({ type: "oauth", ...props })
 };
 
 export const $body = {
@@ -134,7 +142,8 @@ export interface Request {
 export type RequestContext =
   | RequestContextQuery
   | RequestContexAction
-  | RequestContextForm;
+  | RequestContextForm
+  | RequestContextOauth;
 
 export interface PluginContextBase<T> {
   readonly type: T;
@@ -152,6 +161,11 @@ export interface RequestContexAction extends PluginContextBase<"action"> {
 
 export interface RequestContextForm extends PluginContextBase<"form"> {
   readonly body: { [key: string]: any };
+}
+
+export interface RequestContextOauth extends PluginContextBase<"oauth"> {
+  readonly provider: "github" | "google";
+  readonly scope?: string;
 }
 
 export interface Response {

@@ -8,7 +8,7 @@ listen(async (req, res) => {
           body: $body.inline([$el.text({ text: "Enter city " })])
         });
       }
-      const { payload: apikey } = await send("storage-get", "apikey");
+      const { payload: apikey } = await send("storage:get", "apikey");
       if (!apikey) {
         return res.reply({ body: auth() });
       }
@@ -19,10 +19,10 @@ listen(async (req, res) => {
     case "form": {
       const { apikey } = req.context.body;
       if (!apikey) {
-        await send("storage-remove", "apikey");
+        await send("storage:remove", "apikey");
         return res.error({ error: "Need API Key" });
       }
-      await send("storage-set", "apikey", apikey);
+      await send("storage:set", "apikey", apikey);
       return res.reply({
         body: await getWeather(req.context.query, apikey)
       });
@@ -47,7 +47,7 @@ const getWeather = async (
     .then(async response => {
       switch (response.status) {
         case 401: {
-          await send("storage-remove", "apikey");
+          await send("storage:remove", "apikey");
           return auth();
         }
         case 404: {
