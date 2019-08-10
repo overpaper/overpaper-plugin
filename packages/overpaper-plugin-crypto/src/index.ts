@@ -1,33 +1,22 @@
-import { listen } from "@overpaper/plugin";
+import { listen, $el, $content } from "@overpaper/plugin";
 
 listen(async (req, res) => {
-  switch (req.params.type) {
+  switch (req.context.type) {
     case "query": {
-      if (req.params.query.trim().length === 0) {
+      if (req.context.query.trim().length === 0) {
         return res.reply({
-          type: "inline",
-          content: [
-            {
-              type: "text",
-              text: `Enter currency`
-            }
-          ]
+          content: $content.inline([$el.text({ text: "Enter currency" })])
         });
       }
       const json = await (await fetch(
-        `https://api.cryptonator.com/api/ticker/${req.params.query}-usd`
+        `https://api.cryptonator.com/api/ticker/${req.context.query}-usd`
       )).json();
       return res.reply({
-        type: "inline",
-        content: [
-          {
-            type: "text",
-            text: `$${Math.round(json.ticker.price * 100) / 100}`
-          }
-        ]
+        content: $content.inline([
+          $el.text({ text: `$${Math.round(json.ticker.price * 100) / 100}` })
+        ])
       });
     }
-
     default:
       break;
   }

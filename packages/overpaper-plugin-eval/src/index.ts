@@ -1,23 +1,15 @@
-import { listen, ResponsePayload } from "@overpaper/plugin";
+import { listen, $el, $content } from "@overpaper/plugin";
 
 listen(async (req, res) => {
-  switch (req.params.type) {
+  switch (req.context.type) {
     case "query": {
-      return res.reply(evaluate(req.params.query));
+      return res.reply({ content: evaluate(req.context.query) });
     }
     default:
       break;
   }
 });
 
-const evaluate = (expression: string): ResponsePayload => {
-  return {
-    type: "inline",
-    content: [
-      {
-        type: "text",
-        text: `= ${eval(expression)}`
-      }
-    ]
-  };
+const evaluate = (expression: string) => {
+  return $content.inline([$el.text({ text: `= ${eval(expression)}` })]);
 };

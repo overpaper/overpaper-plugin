@@ -10,12 +10,12 @@ export function listen(
     switch (message.type) {
       case "ipc-message": {
         const request: Request = {
-          params: message.args[1],
+          context: message.args[1],
           message: message
         };
         const response: Response = {
-          reply: payload => reply(message, payload),
-          error: payload => error(message, payload)
+          reply: ({ content, state }) => reply(message, content, state),
+          error: ({ error, state }) => error(message, error, state)
         };
         callback(request, response).catch(err =>
           error(message, err.toString())
@@ -60,60 +60,110 @@ export function send<Args extends any[], Payload>(func: string, ...args: Args) {
   });
 }
 
+const $input = ({
+  type,
+  ...props
+}: {
+  type: "text" | "number" | "hidden";
+  name: string;
+  value?: string;
+  placeholder?: string;
+}): {
+  type: "input";
+  input: "text" | "number" | "hidden";
+  name: string;
+  value?: string;
+  placeholder?: string;
+} => ({
+  type: "input",
+  input: type,
+  ...props
+});
+
+export const $el = {
+  text: (props: {
+    text: string | number;
+  }): { type: "text"; text: string | number } => ({
+    type: "text",
+    ...props
+  }),
+  link: (props: {
+    text: string | number;
+    url: string;
+  }): { type: "link"; text: string | number; url: string } => ({
+    type: "link",
+    ...props
+  }),
+  icon: (props: { icon: string }): { type: "icon"; icon: string } => ({
+    type: "icon",
+    ...props
+  }),
+  button: (props: {
+    label?: string | number;
+    action: string | number | JSON;
+    icon?: string;
+  }): {
+    type: "button";
+    label?: string | number;
+    action: string | number | JSON;
+    icon?: string;
+  } => ({ type: "button", ...props }),
+  input: $input,
+  form: (props: {
+    body: ReturnType<typeof $input>[];
+  }): {
+    type: "form";
+    body: ReturnType<typeof $input>[];
+  } => ({ type: "form", ...props })
+};
+
+export const $content = {
+  inline: (
+    content: ResponsePayloadInlineContent
+  ): { type: "inline"; content: ResponsePayloadInlineContent } => ({
+    type: "inline",
+    content
+  })
+};
+
 export interface Request {
-  readonly params: PluginRequestObject;
-  readonly message: Message<PluginRequestObject>;
+  readonly context: RequestContext;
+  readonly message: Message<RequestContext>;
 }
 
-export type PluginRequestObject =
-  | PluginRequestObjectQuery
-  | PluginRequestObjectForm;
+export type RequestContext = RequestContextQuery | RequestContextForm;
 
-export interface PluginRequestObjectBase<T> {
+export interface PluginContextBase<T> {
   readonly type: T;
   uri: string;
   plugin: string;
   query: string;
+  state?: any;
 }
 
-export type PluginRequestObjectQuery = PluginRequestObjectBase<"query">;
+export type RequestContextQuery = PluginContextBase<"query">;
 
-export interface PluginRequestObjectForm
-  extends PluginRequestObjectBase<"form"> {
+export interface RequestContextForm extends PluginContextBase<"form"> {
   readonly body: { [key: string]: any };
 }
 
 export interface Response {
-  readonly reply: (payload: ResponsePayload) => void;
-  readonly error: (payload: any) => void;
+  readonly reply: (args: { content: ResponsePayload; state?: any }) => void;
+  readonly error: (args: { error: any; state?: any }) => void;
 }
 
-export type ResponsePayloadContentItem =
-  | { type: "text"; text: string | number }
-  | { type: "link"; text: string; url: string }
-  | { type: "icon"; icon: string }
-  | {
-      type: "button";
-      label: string;
-      action: string | number | JSON;
-      icon?: string;
-    }
-  | {
-      type: "form";
-      body: {
-        input: "text" | "number" | "hidden";
-        name: string;
-        value?: string;
-        placeholder?: string;
-      }[];
-    };
+export type ResponsePayloadInlineContentItem = ReturnType<
+  typeof $el[keyof typeof $el]
+>;
 
-export type ResponsePayloadContent = ResponsePayloadContentItem[];
+export type ResponsePayloadInlineContent = ResponsePayloadInlineContentItem[];
 
-export interface ResponsePayload {
+export interface ResponsePayloadInline {
   readonly type: "inline";
-  readonly content: any;
+  readonly content: ResponsePayloadInlineContent;
 }
+
+export type ResponsePayload = ResponsePayloadInline;
 
 export interface Message<Args> {
   readonly uid: string;
@@ -137,23 +187,31 @@ export interface ReplyHandlersValue {
   readonly reject: (reason?: any) => void;
 }
 
-function reply<Args extends any[], Payload>(
+function reply<Args extends any[]>(
   message: Message<Args>,
-  payload: Payload
+  content: ResponsePayload,
+  state?: any
 ) {
-  const replyMessage: MessageReply<Args, Payload> = {
+  const replyMessage: MessageReply<
+    Args,
+    { content: ResponsePayload; state?: any }
+  > = {
     ...message,
-    payload,
+    payload: { content, state },
     type: "ipc-message-reply",
     process: "worker"
   };
   (self as DedicatedWorkerGlobalScope).postMessage(replyMessage);
 }
 
-function error<Args extends any[]>(message: Message<Args>, payload: any) {
+function error<Args extends any[]>(
+  message: Message<Args>,
+  error: any,
+  state?: any
+) {
   const errorMessage: MessageReply<Args, any> = {
     ...message,
-    payload,
+    payload: { error, state },
     type: "ipc-message-reply-error",
     process: "worker"
   };
