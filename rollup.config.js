@@ -8,11 +8,8 @@ module.exports = {
   output: [
     {
       file: "dist/index.js",
-      format: "cjs"
-    },
-    {
-      file: "dist/index.es.js",
-      format: "es"
+      format: "cjs",
+      sourcemap: true
     }
   ],
   plugins: [typescript(), resolve(), commonjs(), minify({ comments: false })]

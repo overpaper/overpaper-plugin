@@ -18,14 +18,10 @@
   },
   "homepage": "https://github.com/overpaper/overpaper-plugin",
   "main": "dist/index.js",
-  "module": "dist/index.es.js",
-  "typings": "dist/index.d.ts",
   "types": "dist/index.d.ts",
-  "directories": {
-    "dist": "dist"
-  },
   "files": [
-    "dist"
+    "dist/index.js",
+    "dist/index.d.ts"
   ],
   "scripts": {
     "watch": "../../node_modules/.bin/rollup --config ../../rollup.config.js --watch",
