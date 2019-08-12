@@ -5,16 +5,20 @@ listen(async (req, res) => {
     case "query": {
       if (req.context.query.trim().length === 0) {
         return res.reply({
-          body: $body.inline([$el.text({ text: "Enter currency" })])
+          body: $body.inline({
+            content: [$el.text({ text: "Enter currency" })]
+          })
         });
       }
       const json = await (await fetch(
         `https://api.cryptonator.com/api/ticker/${req.context.query}-usd`
       )).json();
       return res.reply({
-        body: $body.inline([
-          $el.text({ text: `$${Math.round(json.ticker.price * 100) / 100}` })
-        ])
+        body: $body.inline({
+          content: [
+            $el.text({ text: `$${Math.round(json.ticker.price * 100) / 100}` })
+          ]
+        })
       });
     }
     default:

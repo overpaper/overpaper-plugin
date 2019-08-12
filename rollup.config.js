@@ -9,7 +9,7 @@ module.exports = {
     {
       file: "dist/index.js",
       format: "cjs",
-      sourcemap: true
+      sourcemap: false // WARNING: Important to be a false!
     }
   ],
   plugins: [typescript(), resolve(), commonjs(), minify({ comments: false })]

@@ -7,7 +7,9 @@ listen(async (req, res) => {
 
       if (!oauth) {
         return res.reply({
-          body: $body.inline([$el.oauth({ provider: "github" })])
+          body: $body.inline({
+            content: [$el.oauth({ provider: "github" })]
+          })
         });
       }
 
@@ -17,12 +19,16 @@ listen(async (req, res) => {
 
       if (data.message === "Not found") {
         return res.reply({
-          body: $body.inline([$el.text({ text: "Not found" })])
+          body: $body.inline({
+            content: [$el.text({ text: "Not found" })]
+          })
         });
       }
 
       return res.reply({
-        body: $body.inline([$el.link({ text: data.title, url: data.html_url })])
+        body: $body.inline({
+          content: [$el.link({ text: data.title, url: data.html_url })]
+        })
       });
     }
     default:

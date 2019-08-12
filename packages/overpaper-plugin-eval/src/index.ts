@@ -11,5 +11,7 @@ listen(async (req, res) => {
 });
 
 const evaluate = (expression: string) => {
-  return $body.inline([$el.text({ text: `= ${eval(expression)}` })]);
+  return $body.inline({
+    content: [$el.text({ text: `= ${eval(expression)}` })]
+  });
 };

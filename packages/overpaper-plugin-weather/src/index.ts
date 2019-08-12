@@ -5,7 +5,7 @@ listen(async (req, res) => {
     case "query": {
       if (req.context.query.trim().length === 0) {
         return res.reply({
-          body: $body.inline([$el.text({ text: "Enter city " })])
+          body: $body.inline({ content: [$el.text({ text: "Enter city " })] })
         });
       }
       const { payload: apikey } = await send("storage:get", "apikey");
@@ -51,32 +51,38 @@ const getWeather = async (
           return auth();
         }
         case 404: {
-          return $body.inline([$el.text({ text: "Not found" })]);
+          return $body.inline({ content: [$el.text({ text: "Not found" })] });
         }
         case 200: {
           const json = await response.json();
-          return $body.inline([
-            $el.text({ text: `${Math.round(json.main.temp)}°C` })
-          ]);
+          return $body.inline({
+            content: [$el.text({ text: `${Math.round(json.main.temp)}°C` })]
+          });
         }
         default: {
           console.warn(response);
-          return $body.inline([$el.text({ text: "Something went wrong" })]);
+          return $body.inline({
+            content: [$el.text({ text: "Something went wrong" })]
+          });
         }
       }
     })
     .catch(error => {
       console.error(error);
-      return $body.inline([$el.text({ text: "Something went wrong" })]);
+      return $body.inline({
+        content: [$el.text({ text: "Something went wrong" })]
+      });
     })) as any;
 };
 
 const auth = () => {
-  return $body.inline([
-    $el.form({
-      body: [
-        $el.input({ type: "text", name: "apikey", placeholder: "API Key" })
-      ]
-    })
-  ]);
+  return $body.inline({
+    content: [
+      $el.form({
+        body: [
+          $el.input({ type: "text", name: "apikey", placeholder: "API Key" })
+        ]
+      })
+    ]
+  });
 };

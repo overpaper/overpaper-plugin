@@ -21,11 +21,13 @@ const query = async (idx: number) => {
   const post = await fetchPost(idx);
 
   if (!post) {
-    return $body.inline([
-      $el.button({ label: "Refresh", action: { idx: 0 } }),
-      $el.text({ text: " " }),
-      $el.text({ text: "Nothing found" })
-    ]);
+    return $body.inline({
+      content: [
+        $el.button({ label: "Refresh", action: { idx: 0 } }),
+        $el.text({ text: " " }),
+        $el.text({ text: "Nothing found" })
+      ]
+    });
   }
 
   const text = post.body.title ? post.body.title : post.body.text;
@@ -37,16 +39,22 @@ const query = async (idx: number) => {
   ];
 
   if (!text) {
-    return $body.inline([
-      ...controls,
-      $el.text({ text: "Nothing to show for this post" })
-    ]);
+    return $body.inline({
+      content: [
+        ...controls,
+        $el.text({ text: "Nothing to show for this post" })
+      ]
+    });
   }
 
-  return $body.inline([
-    ...controls,
-    post.body.url ? $el.link({ text, url: post.body.url }) : $el.text({ text })
-  ]);
+  return $body.inline({
+    content: [
+      ...controls,
+      post.body.url
+        ? $el.link({ text, url: post.body.url })
+        : $el.text({ text })
+    ]
+  });
 };
 
 const fetchPost = async (

@@ -1,8 +1,10 @@
 import { ResponsePayloadInlineContent } from "../response";
 
-export const $bodyInline = (
-  content: ResponsePayloadInlineContent
-): { type: "inline"; content: ResponsePayloadInlineContent } => ({
+export const $bodyInline = ({
+  content
+}: {
+  content: ResponsePayloadInlineContent;
+}): { type: "inline"; content: ResponsePayloadInlineContent } => ({
   type: "inline",
   content
 });
