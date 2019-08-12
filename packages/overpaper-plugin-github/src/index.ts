@@ -8,14 +8,17 @@ listen(async (req, res) => {
       if (!oauth) {
         return res.reply({
           body: $body.inline({
-            content: [$el.oauth({ provider: "github" })]
+            content: [$el.oauth({ provider: "github", scope: "" })]
           })
         });
       }
 
+      console.log(oauth);
       const data = await fetch(
         `https://api.github.com/repos/${req.context.query}?access_token=${oauth.access_token}`
       ).then(r => r.json());
+
+      console.log(data);
 
       if (data.message === "Not found") {
         return res.reply({

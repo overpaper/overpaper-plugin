@@ -31,5 +31,5 @@ export interface RequestContextForm extends PluginContext<"form"> {
 
 export interface RequestContextOauth extends PluginContext<"oauth"> {
   readonly provider: "github" | "google";
-  readonly scope?: string;
+  readonly scope: string;
 }
