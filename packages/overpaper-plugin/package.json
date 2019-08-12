@@ -20,8 +20,7 @@
   "types": "dist/index.d.ts",
   "files": [
     "dist/index.js",
-    "dist/index.js.map",
-    "dist/index.d.ts"
+    "dist/*.d.ts"
   ],
   "scripts": {
     "watch": "../../node_modules/.bin/rollup --config ../../rollup.config.js --watch",
