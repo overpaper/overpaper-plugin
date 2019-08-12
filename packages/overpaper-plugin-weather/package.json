@@ -1,6 +1,6 @@
 {
   "name": "overpaper-plugin-weather",
-  "version": "1.0.14",
+  "version": "1.0.15",
   "description": "openweathermap plugin for overpaper",
   "repository": {
     "type": "git",
@@ -30,7 +30,7 @@
     "build": "npm run cleanup && ../../node_modules/.bin/rollup --config ../../rollup.config.js"
   },
   "dependencies": {
-    "@overpaper/plugin": "1.0.14"
+    "@overpaper/plugin": "1.0.15"
   },
   "gitHead": "69411a89cfe70ec20aafd3de28299ad42d5d3003"
 }
