@@ -12,5 +12,10 @@ module.exports = {
       sourcemap: false // WARNING: Important to be a false!
     }
   ],
-  plugins: [typescript(), resolve(), commonjs(), minify({ comments: false })]
+  plugins: [
+    typescript({ clean: true }),
+    resolve(),
+    commonjs(),
+    minify({ comments: false })
+  ]
 };
