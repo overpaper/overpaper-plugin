@@ -17,7 +17,7 @@ listen(async (req, res) => {
           }),
           state: {}
         });
-      } else if (ss > 59 || ss < 0 || mm < 0) {
+      } else if (ss < 0 || mm < 0) {
         return res.reply({
           body: $body.inline({
             content: [$el.text({ text: "Impossible time" })]
@@ -33,23 +33,28 @@ listen(async (req, res) => {
           if (mm < 0) {
             mm = 0;
             ss = 0;
-            return;
+            return false;
           }
           ss = 59;
         }
-        push(req.context.key, step(mm, ss));
+        return true;
       };
 
       intervals[req.context.key] = setInterval(() => {
         tick();
-        if (mm === 0 && ss === 0) {
+        if (mm > 0 || ss > 0) {
+          push(req.context.key, step(mm, ss));
+        } else {
           push(req.context.key, finish());
-          clearInterval(intervals[req.context.key]);
-          delete intervals[req.context.key];
+          cleanup(req.context.key);
         }
       }, 1000);
 
       return res.reply(step(mm, ss));
+    }
+    case "cleanup": {
+      cleanup(req.context.key);
+      break;
     }
     default:
       break;
@@ -74,4 +79,9 @@ const finish = () => {
     }),
     state: {}
   };
+};
+
+const cleanup = (key: string) => {
+  clearInterval(intervals[key]);
+  delete intervals[key];
 };

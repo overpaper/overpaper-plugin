@@ -9,7 +9,8 @@ export type RequestContext<S extends State = any> =
   | RequestContextQuery<S>
   | RequestContexAction<S>
   | RequestContextForm<S>
-  | RequestContextOauth<S>;
+  | RequestContextOauth<S>
+  | RequestContextCleanup<S>;
 
 export interface PluginContext<T, S extends { [key: string]: any } = any> {
   readonly type: T;
@@ -44,3 +45,8 @@ export interface RequestContextOauth<S extends State = any>
   readonly provider: "github" | "google";
   readonly scope: string;
 }
+
+export type RequestContextCleanup<S extends State = any> = PluginContext<
+  "cleanup",
+  S
+>;
