@@ -7,7 +7,8 @@ listen(async (req, res) => {
         return res.reply({
           body: $body.inline({
             content: [$el.text({ text: "Enter currency" })]
-          })
+          }),
+          state: {}
         });
       }
       const json = await (await fetch(
@@ -18,7 +19,8 @@ listen(async (req, res) => {
           content: [
             $el.text({ text: `$${Math.round(json.ticker.price * 100) / 100}` })
           ]
-        })
+        }),
+        state: {}
       });
     }
     default:

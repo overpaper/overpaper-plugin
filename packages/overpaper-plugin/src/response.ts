@@ -1,15 +1,12 @@
 import { $el } from "./elements";
-import { Message, MessageReply } from ".";
+import { Message, MessageReply, State } from "./";
 
-export function reply<Args extends any[]>(
+export function reply<Args extends any[], S extends State = any>(
   message: Message<Args>,
   body: ResponseBody,
-  state?: any
+  state: S
 ) {
-  const replyMessage: MessageReply<
-    Args,
-    { body: ResponseBody; state?: any }
-  > = {
+  const replyMessage: MessageReply<Args, ReplyPayload<S>> = {
     ...message,
     payload: { body, state },
     type: "ipc-message-reply",
@@ -18,10 +15,10 @@ export function reply<Args extends any[]>(
   (self as DedicatedWorkerGlobalScope).postMessage(replyMessage);
 }
 
-export function error<Args extends any[]>(
+export function error<Args extends any[], S extends State = any>(
   message: Message<Args>,
   error: any,
-  state?: any
+  state: S
 ) {
   const errorMessage: MessageReply<Args, any> = {
     ...message,
@@ -32,9 +29,9 @@ export function error<Args extends any[]>(
   (self as DedicatedWorkerGlobalScope).postMessage(errorMessage);
 }
 
-export interface Response {
-  readonly reply: (args: { body: ResponseBody; state?: any }) => void;
-  readonly error: (args: { error: any; state?: any }) => void;
+export interface Response<S extends State = any> {
+  readonly reply: (args: { body: ResponseBody; state: S }) => void;
+  readonly error: (args: { error: any; state: S }) => void;
 }
 
 export type ResponseBody = ResponseBodyInline;
@@ -49,3 +46,8 @@ export type ResponsePayloadInlineContent = ResponsePayloadInlineContentItem[];
 export type ResponsePayloadInlineContentItem = ReturnType<
   typeof $el[keyof typeof $el]
 >;
+
+export interface ReplyPayload<S extends State = any> {
+  readonly body: ResponseBody;
+  readonly state: S;
+}

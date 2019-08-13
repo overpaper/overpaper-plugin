@@ -3,14 +3,11 @@ import { listen, $body, $el } from "@overpaper/plugin";
 listen(async (req, res) => {
   switch (req.context.type) {
     case "query": {
-      return res.reply({ body: await query(0) });
+      return res.reply({ body: await query(0), state: {} });
     }
     case "action": {
       const { action } = req.context;
-      if (typeof action !== "object") {
-        return res.error({ error: "Wrong request" });
-      }
-      return res.reply({ body: await query(action.idx) });
+      return res.reply({ body: await query(action.idx), state: {} });
     }
     default:
       break;

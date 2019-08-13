@@ -1,3 +1,7 @@
+export interface State {
+  [key: string]: any;
+}
+
 export interface Message<Args> {
   readonly uid: string;
   readonly args: Args;

@@ -5,26 +5,29 @@ listen(async (req, res) => {
     case "query": {
       if (req.context.query.trim().length === 0) {
         return res.reply({
-          body: $body.inline({ content: [$el.text({ text: "Enter city " })] })
+          body: $body.inline({ content: [$el.text({ text: "Enter city " })] }),
+          state: {}
         });
       }
       const { payload: apikey } = await send("storage:get", "apikey");
       if (!apikey) {
-        return res.reply({ body: auth() });
+        return res.reply({ body: auth(), state: {} });
       }
       return res.reply({
-        body: await getWeather(req.context.query, apikey)
+        body: await getWeather(req.context.query, apikey),
+        state: {}
       });
     }
     case "form": {
       const { apikey } = req.context.body;
       if (!apikey) {
         await send("storage:remove", "apikey");
-        return res.error({ error: "Need API Key" });
+        return res.error({ error: "Need API Key", state: {} });
       }
       await send("storage:set", "apikey", apikey);
       return res.reply({
-        body: await getWeather(req.context.query, apikey)
+        body: await getWeather(req.context.query, apikey),
+        state: {}
       });
     }
     default:

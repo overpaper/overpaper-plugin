@@ -1,35 +1,46 @@
-import { Message } from "./types";
+import { Message, State } from "./types";
 
-export interface Request {
-  readonly context: RequestContext;
-  readonly message: Message<RequestContext>;
+export interface Request<S extends State = any> {
+  readonly context: RequestContext<S>;
+  readonly message: Message<RequestContext<S>>;
 }
 
-export type RequestContext =
-  | RequestContextQuery
-  | RequestContexAction
-  | RequestContextForm
-  | RequestContextOauth;
+export type RequestContext<S extends State = any> =
+  | RequestContextQuery<S>
+  | RequestContexAction<S>
+  | RequestContextForm<S>
+  | RequestContextOauth<S>;
 
-export interface PluginContext<T> {
+export interface PluginContext<T, S extends { [key: string]: any } = any> {
   readonly type: T;
+  key: string;
   uri: string;
   plugin: string;
   query: string;
-  state?: any;
+  state: S;
 }
 
-export type RequestContextQuery = PluginContext<"query">;
+export type RequestContextQuery<S extends State = any> = PluginContext<
+  "query",
+  S
+>;
 
-export interface RequestContexAction extends PluginContext<"action"> {
-  readonly action: string | number | { [key: string]: any };
+export interface RequestContexAction<
+  A extends { [key: string]: any } = any,
+  S extends State = any
+> extends PluginContext<"action", S> {
+  readonly action: A;
 }
 
-export interface RequestContextForm extends PluginContext<"form"> {
-  readonly body: { [key: string]: any };
+export interface RequestContextForm<
+  B extends { [key: string]: any } = any,
+  S extends State = any
+> extends PluginContext<"form", S> {
+  readonly body: B;
 }
 
-export interface RequestContextOauth extends PluginContext<"oauth"> {
+export interface RequestContextOauth<S extends State = any>
+  extends PluginContext<"oauth", S> {
   readonly provider: "github" | "google";
   readonly scope: string;
 }

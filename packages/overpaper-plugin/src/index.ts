@@ -1,7 +1,7 @@
 import nanoid from "nanoid/non-secure";
 import { Request } from "./request";
-import { error, reply, Response } from "./response";
-import { Message, MessageReply, ReplyHandlersValue } from "./types";
+import { error, reply, Response, ReplyPayload } from "./response";
+import { Message, MessageReply, ReplyHandlersValue, State } from "./types";
 
 export * from "./elements";
 export * from "./request";
@@ -10,8 +10,8 @@ export * from "./types";
 
 const replyHandlers = new Map<string, ReplyHandlersValue>();
 
-export function listen(
-  callback: (request: Request, response: Response) => Promise<void>
+export function listen<S extends State = any>(
+  callback: (request: Request<S>, response: Response<S>) => Promise<void>
 ) {
   (self as DedicatedWorkerGlobalScope).addEventListener("message", event => {
     const message: Message<any> | MessageReply<any, any> = event.data;
@@ -26,7 +26,7 @@ export function listen(
           error: ({ error, state }) => error(message, error, state)
         };
         callback(request, response).catch(err =>
-          error(message, err.toString())
+          error(message, err.toString(), request.context.state)
         );
         break;
       }
@@ -66,4 +66,11 @@ export function send<Args extends any[], Payload>(func: string, ...args: Args) {
     replyHandlers.set(message.uid, { resolve, reject });
     (self as DedicatedWorkerGlobalScope).postMessage(message);
   });
+}
+
+export function push<Args extends any[], Payload>(
+  key: string,
+  payload: ReplyPayload
+) {
+  return send("push", key, payload);
 }

@@ -1,4 +1,11 @@
-import { listen, $el, $body, send } from "@overpaper/plugin";
+import {
+  $body,
+  $el,
+  listen,
+  push,
+  RequestContexAction,
+  send
+} from "@overpaper/plugin";
 
 listen(async (req, res) => {
   const { payload: oauth } = await send("oauth:get", "github", "repo");
@@ -6,7 +13,8 @@ listen(async (req, res) => {
     return res.reply({
       body: $body.inline({
         content: [$el.oauth({ provider: "github", scope: "repo" })]
-      })
+      }),
+      state: {}
     });
   }
 
@@ -15,13 +23,12 @@ listen(async (req, res) => {
       const [cmd, params] = req.context.query.split(":");
       switch (cmd) {
         case "issue": {
-          const [repo, num] = params.split("#");
-          const issue = await getIssue({
-            repo,
-            num,
-            token: oauth.access_token
-          });
-          return res.reply({ body: issue });
+          return res.reply(
+            await getIssue({
+              params,
+              token: oauth.access_token
+            })
+          );
         }
         default:
           break;
@@ -29,33 +36,31 @@ listen(async (req, res) => {
       return res.reply({
         body: $body.inline({
           content: [$el.text({ text: "Nothing to show" })]
-        })
+        }),
+        state: {}
       });
     }
     case "action": {
-      const { action } = req.context;
-      if (typeof action !== "object") {
-        return res.error({ error: "Wrong request" });
-      }
-      switch (action.cmd) {
+      switch (req.context.action.cmd) {
         case "close-issue":
         case "open-issue": {
-          return res.reply({
-            body: await patchIssue({
-              repo: action.repo,
-              num: action.num,
+          return res.reply(
+            await patchIssue({
+              context: req.context,
               token: oauth.access_token,
               body: {
-                state: action.cmd === "close-issue" ? "closed" : "open"
+                state:
+                  req.context.action.cmd === "close-issue" ? "closed" : "open"
               }
             })
-          });
+          );
         }
         default: {
           return res.reply({
             body: $body.inline({
               content: [$el.text({ text: "Action not supported" })]
-            })
+            }),
+            state: {}
           });
         }
       }
@@ -66,75 +71,102 @@ listen(async (req, res) => {
 });
 
 const getIssue = async ({
-  repo,
-  num,
+  params,
   token
 }: {
-  repo: string;
-  num: string;
+  params: string;
   token: string;
 }) => {
+  const [repo, num] = params.split("#");
   const result = await fetcher({
     url: `/repos/${repo}/issues/${num}`,
     token: token
   });
   if (!result.ok) {
-    return $body.inline({
-      content: [$el.text({ text: result.message })]
-    });
-  }
-  return $body.inline({
-    content: [
-      $el.checkbox({
-        checked: result.json.state === "closed",
-        action: {
-          cmd: result.json.state === "closed" ? "open-issue" : "close-issue",
-          repo,
-          num
-        }
+    return {
+      body: $body.inline({
+        content: [$el.text({ text: result.message })]
       }),
-      $el.link({ text: result.json.title, url: result.json.html_url })
-    ]
-  });
+      state: {}
+    };
+  }
+  return {
+    body: $body.inline({
+      content: [
+        $el.checkbox({
+          checked: result.json.state === "closed",
+          action: {
+            cmd: result.json.state === "closed" ? "open-issue" : "close-issue",
+            repo,
+            num
+          }
+        }),
+        $el.link({ text: result.json.title, url: result.json.html_url })
+      ]
+    }),
+    state: {
+      text: result.json.title,
+      url: result.json.html_url,
+      state: result.json.state
+    }
+  };
 };
 
 const patchIssue = async ({
-  repo,
-  num,
+  context,
   token,
   body
 }: {
-  repo: string;
-  num: string;
+  context: RequestContexAction;
   token: string;
-  body: any;
+  body: { state: "closed" | "open" };
 }) => {
-  const result = await fetcher({
-    url: `/repos/${repo}/issues/${num}`,
-    token: token,
-    opts: {
-      method: "PATCH",
-      body: JSON.stringify(body)
-    }
-  });
-  if (!result.ok) {
-    return $body.inline({
-      content: [$el.text({ text: result.message })]
+  const $$checkbox = (issueState: "closed" | "open") => {
+    return $el.checkbox({
+      checked: issueState === "closed",
+      action: {
+        ...context.action,
+        cmd: issueState === "closed" ? "open-issue" : "close-issue"
+      }
     });
-  }
-  return $body.inline({
-    content: [
-      $el.checkbox({
-        checked: result.json.state === "closed",
-        action: {
-          cmd: result.json.state === "closed" ? "open-issue" : "close-issue",
-          repo,
-          num
-        }
-      }),
-      $el.link({ text: result.json.title, url: result.json.html_url })
-    ]
+  };
+
+  push(context.key, {
+    body: $body.inline({
+      content: [
+        $$checkbox(body.state),
+        $el.link({ text: context.state.text, url: context.state.url })
+      ]
+    }),
+    state: context.state
   });
+
+  const result = await fetcher({
+    url: `/repos/${context.action.repo}/issues/${context.action.num}`,
+    token: token,
+    opts: { method: "PATCH", body: JSON.stringify(body) }
+  });
+
+  if (!result.ok) {
+    return {
+      body: $body.inline({ content: [$el.text({ text: result.message })] }),
+      state: {}
+    };
+  }
+
+  return {
+    body: $body.inline({
+      content: [
+        $$checkbox(result.json.state),
+        $el.link({ text: result.json.title, url: result.json.html_url })
+      ]
+    }),
+    state: {
+      text: result.json.title,
+      url: result.json.html_url,
+      state: result.json.state
+    }
+  };
 };
 
 const fetcher = ({
@@ -158,18 +190,26 @@ const fetcher = ({
     }
   })
     .then(async response => {
-      const json = await response.json();
-      if (response.ok) {
-        return {
-          ok: true,
-          status: response.status,
-          json
-        };
-      } else {
+      try {
+        const json = await response.json();
+        if (response.ok) {
+          return {
+            ok: true,
+            status: response.status,
+            json
+          };
+        } else {
+          return {
+            ok: false,
+            status: response.status,
+            message: json.message
+          };
+        }
+      } catch (error) {
         return {
           ok: false,
-          status: response.status,
-          message: json.message
+          status: 500,
+          message: error.toString()
         };
       }
     })
