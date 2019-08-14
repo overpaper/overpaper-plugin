@@ -1,7 +1,7 @@
 {
-  "name": "@overpaper/plugin",
+  "name": "@overpaper/utils",
   "version": "1.0.20",
-  "description": "package for creating overpaper plugin",
+  "description": "utils for @overpaper/plugin",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/overpaper/overpaper-plugin.git"
@@ -29,12 +29,8 @@
     "cleanup": "rm -rf ./dist && mkdir -p ./dist",
     "build": "npm run cleanup && ../../node_modules/.bin/rollup --config ../../rollup.config.js"
   },
-  "devDependencies": {
-    "@types/nanoid": "2.0.0"
-  },
   "dependencies": {
-    "date-fns": "1.30.1",
-    "nanoid": "2.0.3"
+    "date-fns": "1.30.1"
   },
   "gitHead": "69411a89cfe70ec20aafd3de28299ad42d5d3003"
 }

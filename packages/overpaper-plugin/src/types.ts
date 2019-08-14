@@ -5,6 +5,23 @@ export namespace Plugin {
     [key: string]: any;
   }
 
+  export enum DocType {
+    DAYLI = 1,
+    WEEKLY = 2,
+    MONTHLY = 3,
+    YEARLY = 4,
+    NOTE = 5
+  }
+
+  export interface Doc {
+    readonly type: DocType;
+    readonly uid: string;
+    readonly year: number;
+    readonly month: number;
+    readonly week: number;
+    readonly day: number;
+  }
+
   export interface Message<Args> {
     readonly uid: string;
     readonly args: Args;
@@ -28,13 +45,14 @@ export namespace Plugin {
       readonly message: Message<Context<S>>;
     }
 
-    export interface BaseContext<T, S extends { [key: string]: any } = any> {
+    export interface BaseContext<T, S extends State> {
       readonly type: T;
-      key: string;
-      uri: string;
-      plugin: string;
-      query: string;
-      state: S;
+      readonly key: string;
+      readonly uri: string;
+      readonly plugin: string;
+      readonly query: string;
+      readonly state: S;
+      readonly doc: Doc;
     }
 
     export type Context<S extends State = any> =

@@ -1,6 +1,8 @@
 import { $body, $el, listen, push, Plugin, send } from "@overpaper/plugin";
 
 listen(async (req, res) => {
+  console.log(req);
+
   const { payload: oauth } = await send("oauth:get", "github", "repo");
   if (!oauth) {
     return res.reply({
