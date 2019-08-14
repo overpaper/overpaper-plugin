@@ -1,6 +1,6 @@
 {
   "name": "@overpaper/plugin",
-  "version": "1.0.19",
+  "version": "1.0.20",
   "description": "package for creating overpaper plugin",
   "repository": {
     "type": "git",
