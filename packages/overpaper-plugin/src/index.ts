@@ -18,7 +18,7 @@ export function listen<S extends Plugin.State = any>(
     switch (message.type) {
       case "ipc-message": {
         const req: Plugin.Request.Body<S> = {
-          context: message.args[1],
+          context: message.args[0],
           message: message
         };
         const res: Plugin.Response.Wrapper<S> = {
