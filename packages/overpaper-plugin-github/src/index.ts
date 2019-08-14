@@ -1,11 +1,4 @@
-import {
-  $body,
-  $el,
-  listen,
-  push,
-  RequestContexAction,
-  send
-} from "@overpaper/plugin";
+import { $body, $el, listen, push, Plugin, send } from "@overpaper/plugin";
 
 listen(async (req, res) => {
   const { payload: oauth } = await send("oauth:get", "github", "repo");
@@ -117,7 +110,7 @@ const patchIssue = async ({
   token,
   body
 }: {
-  context: RequestContexAction;
+  context: Plugin.Request.ContexAction;
   token: string;
   body: { state: "closed" | "open" };
 }) => {

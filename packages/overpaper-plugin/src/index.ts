@@ -1,32 +1,32 @@
 import nanoid from "nanoid/non-secure";
-import { Request } from "./request";
-import { error, reply, Response, ReplyPayload } from "./response";
-import { Message, MessageReply, ReplyHandlersValue, State } from "./types";
-
-export * from "./elements";
-export * from "./request";
-export * from "./response";
-export * from "./types";
+import { $el, $body } from "./elements";
+import { Plugin } from "./types";
 
 const replyHandlers = new Map<string, ReplyHandlersValue>();
 
-export function listen<S extends State = any>(
-  callback: (request: Request<S>, response: Response<S>) => Promise<void>
+export { Plugin, $el, $body };
+
+export function listen<S extends Plugin.State = any>(
+  callback: (
+    request: Plugin.Request.Body<S>,
+    response: Plugin.Response.Wrapper<S>
+  ) => Promise<void>
 ) {
   (self as DedicatedWorkerGlobalScope).addEventListener("message", event => {
-    const message: Message<any> | MessageReply<any, any> = event.data;
+    const message: Plugin.Message<any> | Plugin.MessageReply<any, any> =
+      event.data;
     switch (message.type) {
       case "ipc-message": {
-        const request: Request = {
+        const req: Plugin.Request.Body<S> = {
           context: message.args[1],
           message: message
         };
-        const response: Response = {
-          reply: ({ body, state }) => reply(message, body, state),
-          error: ({ error, state }) => error(message, error, state)
+        const res: Plugin.Response.Wrapper<S> = {
+          reply: ({ body, state }) => responseReply(message, body, state),
+          error: ({ error, state }) => responseError(message, error, state)
         };
-        callback(request, response).catch(err =>
-          error(message, err.toString(), request.context.state)
+        callback(req, res).catch(err =>
+          responseError(message, err.toString(), req.context.state)
         );
         break;
       }
@@ -34,7 +34,7 @@ export function listen<S extends State = any>(
         const handler = replyHandlers.get(message.uid);
         if (handler) {
           replyHandlers.delete(message.uid);
-          handler.resolve(message as MessageReply<any, any>);
+          handler.resolve(message as Plugin.MessageReply<any, any>);
         }
         break;
       }
@@ -42,7 +42,7 @@ export function listen<S extends State = any>(
         const handler = replyHandlers.get(message.uid);
         if (handler) {
           replyHandlers.delete(message.uid);
-          handler.reject(message as MessageReply<any, any>);
+          handler.reject(message as Plugin.MessageReply<any, any>);
         }
         break;
       }
@@ -53,8 +53,8 @@ export function listen<S extends State = any>(
 }
 
 export function send<Args extends any[], Payload>(func: string, ...args: Args) {
-  return new Promise<MessageReply<Args, Payload>>((resolve, reject) => {
-    const message: Message<Args> = {
+  return new Promise<Plugin.MessageReply<Args, Payload>>((resolve, reject) => {
+    const message: Plugin.Message<Args> = {
       uid: nanoid(),
       args,
       func,
@@ -68,9 +68,45 @@ export function send<Args extends any[], Payload>(func: string, ...args: Args) {
   });
 }
 
-export function push<Args extends any[], Payload>(
+export function push<S extends Plugin.State = any>(
   key: string,
-  payload: ReplyPayload
+  payload: Plugin.Response.ReplyPayload<S>
 ) {
   return send("push", key, payload);
+}
+
+function responseReply<Args extends any[], S extends Plugin.State = any>(
+  message: Plugin.Message<Args>,
+  body: Plugin.Response.Body,
+  state: S
+) {
+  const replyMessage: Plugin.MessageReply<
+    Args,
+    Plugin.Response.ReplyPayload<S>
+  > = {
+    ...message,
+    payload: { body, state },
+    type: "ipc-message-reply",
+    process: "worker"
+  };
+  (self as DedicatedWorkerGlobalScope).postMessage(replyMessage);
+}
+
+function responseError<Args extends any[], S extends Plugin.State = any>(
+  message: Plugin.Message<Args>,
+  error: any,
+  state: S
+) {
+  const errorMessage: Plugin.MessageReply<Args, any> = {
+    ...message,
+    payload: { error, state },
+    type: "ipc-message-reply-error",
+    process: "worker"
+  };
+  (self as DedicatedWorkerGlobalScope).postMessage(errorMessage);
+}
+
+interface ReplyHandlersValue {
+  readonly resolve: (value?: any) => void;
+  readonly reject: (reason?: any) => void;
 }

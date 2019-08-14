@@ -1,4 +1,4 @@
-import { listen, send, $el, $body, ResponseBody } from "@overpaper/plugin";
+import { listen, send, $el, $body, Plugin } from "@overpaper/plugin";
 
 listen(async (req, res) => {
   switch (req.context.type) {
@@ -38,7 +38,7 @@ listen(async (req, res) => {
 const getWeather = async (
   query: string,
   apikey: string
-): Promise<ResponseBody> => {
+): Promise<Plugin.Response.Body> => {
   const [city, country] = query.split(",");
   const apiurl = "https://api.openweathermap.org/data/2.5";
   let q = `${city}`;

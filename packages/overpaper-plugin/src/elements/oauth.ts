@@ -1,10 +1,10 @@
-import { RequestContextOauth } from "../request";
+import { Plugin } from "../types";
 
 export const $oauth = (props: {
-  provider: RequestContextOauth["provider"];
-  scope: RequestContextOauth["scope"];
+  provider: Plugin.Request.ContextOauth["provider"];
+  scope: Plugin.Request.ContextOauth["scope"];
 }): {
   type: "oauth";
-  provider: RequestContextOauth["provider"];
-  scope: RequestContextOauth["scope"];
+  provider: Plugin.Request.ContextOauth["provider"];
+  scope: Plugin.Request.ContextOauth["scope"];
 } => ({ type: "oauth", ...props });

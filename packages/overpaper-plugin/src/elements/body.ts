@@ -1,10 +1,10 @@
-import { ResponsePayloadInlineContent } from "../response";
+import { Plugin } from "../types";
 
 export const $bodyInline = ({
   content
 }: {
-  content: ResponsePayloadInlineContent;
-}): { type: "inline"; content: ResponsePayloadInlineContent } => ({
+  content: Plugin.Response.BodyInlineContent;
+}): { type: "inline"; content: Plugin.Response.BodyInlineContent } => ({
   type: "inline",
   content
 });
