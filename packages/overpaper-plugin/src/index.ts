@@ -18,8 +18,7 @@ export function listen<S extends Plugin.State = any>(
     switch (message.type) {
       case "ipc-message": {
         const req: Plugin.Request.Body<S> = {
-          context: message.args[0],
-          message: message
+          context: message.args[0]
         };
         const res: Plugin.Response.Wrapper<S> = {
           reply: ({ body, state }) => responseReply(message, body, state),
@@ -58,8 +57,8 @@ export function send<Args extends any[], Payload>(func: string, ...args: Args) {
       uid: nanoid(),
       args,
       func,
-      target: "plugins",
-      origin: "plugins",
+      target: "client",
+      origin: "client",
       process: "worker",
       type: "ipc-message"
     };

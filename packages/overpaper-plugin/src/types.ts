@@ -22,31 +22,32 @@ export namespace Plugin {
     readonly day: number;
   }
 
-  export interface Message<Args> {
+  export interface Message<Args extends any[]> {
     readonly uid: string;
     readonly args: Args;
     readonly func: string;
-    readonly origin: "server" | "client" | "plugins" | "main";
+    readonly origin: "server" | "client" | "main";
     readonly process: "iframe" | "worker";
-    readonly target: "server" | "client" | "plugins" | "main";
+    readonly target: "server" | "client" | "main";
     readonly type:
       | "ipc-message"
       | "ipc-message-reply"
       | "ipc-message-reply-error";
   }
 
-  export interface MessageReply<Args, Payload> extends Message<Args> {
+  export interface MessageReply<Args extends any[], Payload>
+    extends Message<Args> {
     readonly payload: Payload;
   }
 
   export namespace Request {
     export interface Body<S extends State = any> {
       readonly context: Context<S>;
-      readonly message: Message<Context<S>>;
     }
 
     export interface BaseContext<T, S extends State> {
       readonly type: T;
+      readonly uid: string;
       readonly key: string;
       readonly uri: string;
       readonly plugin: string;
