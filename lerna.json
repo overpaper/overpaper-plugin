@@ -1,10 +1,5 @@
 {
   "version": "1.0.26",
-  "packages": [
-    "packages/*"
-  ],
-  "npmClient": "npm",
-  "publishConfig": {
-    "access": "public"
-  }
+  "packages": ["packages/*"],
+  "npmClient": "npm"
 }
