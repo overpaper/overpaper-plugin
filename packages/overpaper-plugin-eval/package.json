@@ -1,5 +1,5 @@
 {
-  "name": "overpaper-plugin-eval",
+  "name": "@overpaper/plugin-eval",
   "version": "1.0.24",
   "description": "eval plugin for overpaper",
   "repository": {

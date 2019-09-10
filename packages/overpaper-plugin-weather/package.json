@@ -1,5 +1,5 @@
 {
-  "name": "overpaper-plugin-weather",
+  "name": "@overpaper/plugin-weather",
   "version": "1.0.24",
   "description": "openweathermap plugin for overpaper",
   "repository": {

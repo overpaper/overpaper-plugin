@@ -1,5 +1,5 @@
 {
-  "name": "overpaper-plugin-timer",
+  "name": "@overpaper/plugin-timer",
   "version": "1.0.24",
   "description": "timer plugin for overpaper",
   "repository": {

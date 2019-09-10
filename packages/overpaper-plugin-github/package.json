@@ -1,5 +1,5 @@
 {
-  "name": "overpaper-plugin-github",
+  "name": "@overpaper/plugin-github",
   "version": "1.0.24",
   "description": "github plugin for overpaper",
   "repository": {
