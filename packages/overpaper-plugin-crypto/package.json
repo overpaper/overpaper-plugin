@@ -1,6 +1,6 @@
 {
   "name": "@overpaper/plugin-crypto",
-  "version": "1.0.24",
+  "version": "1.0.25",
   "description": "crypto currency price plugin for overpaper",
   "repository": {
     "type": "git",

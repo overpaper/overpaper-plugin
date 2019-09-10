@@ -1,6 +1,6 @@
 {
   "name": "@overpaper/plugin-eval",
-  "version": "1.0.24",
+  "version": "1.0.25",
   "description": "eval plugin for overpaper",
   "repository": {
     "type": "git",
