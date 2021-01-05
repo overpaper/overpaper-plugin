@@ -31,7 +31,7 @@
   },
   "dependencies": {
     "@overpaper/plugin": "1.0.24",
-    "axios": "0.19.0",
+    "axios": "0.21.1",
     "superagent": "5.1.0"
   },
   "gitHead": "7abcff5c2600ec632c6f8dcd8e099e2052171425",
